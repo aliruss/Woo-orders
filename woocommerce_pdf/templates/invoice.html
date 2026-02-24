@@ -1,49 +1,48 @@
-<div class="invoice-container" id="invoice">
-    <div class="header">
+<div class="box-container" id="invoice">
+    <div class="header-title">
         <h1>فاکتور فروش</h1>
+        <div class="store-name">{{ store.name }}</div>
     </div>
     
-    <div class="info-section">
-        <div class="info-block">
-            <strong>شماره سفارش:</strong> {{ order.id }}<br>
-            <strong>تاریخ سفارش:</strong> {{ order.jalali_date }}<br>
-            <strong>نام مشتری:</strong> {{ order.billing.first_name }} {{ order.billing.last_name }}<br>
-            {% if order.created_via == 'admin' %}
-            <strong>صادرکننده فاکتور:</strong> ادمین سایت<br>
-            {% endif %}
+    <div class="meta-info">
+        <div class="meta-col">
+            <div><strong>تاریخ:</strong> {{ order.jalali_date }}</div>
+            <div><strong>تلفن:</strong> {{ order.billing.phone }}</div>
+        </div>
+        <div class="meta-col">
+            <div><strong>شماره سفارش:</strong> {{ order.id }}</div>
+            <div><strong>مشتری:</strong> {{ order.billing.first_name }} {{ order.billing.last_name }}</div>
         </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>ردیف</th>
-                <th>نام محصول</th>
+                <th>محصول</th>
                 <th>تعداد</th>
-                <th>قیمت واحد</th>
-                <th>جمع کل</th>
+                <th>قیمت واحد (تومان)</th>
+                <th>جمع (تومان)</th>
             </tr>
         </thead>
         <tbody>
             {% for item in order.line_items %}
             <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ item.name }}</td>
+                <td style="text-align: right;">{{ item.name }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ item.total }}</td>
+                <td>{{ item.price | currency }}</td>
+                <td>{{ item.total | currency }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <div class="total-section">
-        جمع کل نهایی: {{ order.total }}
+    <div class="total-row">
+        <span>جمع کل:</span>
+        <span>{{ order.total | currency }} تومان</span>
     </div>
     
-    {% if order.customer_note %}
-    <div style="margin-top: 5mm; font-size: 10pt;">
-        <strong>توضیحات سفارش:</strong> {{ order.customer_note }}
+    <div class="notes-box">
+        <div class="notes-title">توضیحات سفارش:</div>
+        <div>{{ order.customer_note | default('ندارد', true) }}</div>
     </div>
-    {% endif %}
 </div>

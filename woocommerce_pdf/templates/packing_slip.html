@@ -1,26 +1,31 @@
-<div class="packing-slip-container {{ 'page-break' if force_page_break else '' }}">
+<div class="box-container {{ 'page-break' if force_page_break else '' }}">
     <div class="packing-header">
-        Packing Slip / برگه ارسال
+        Packing Slip | برگه ارسال
     </div>
     
-    <div class="info-section">
-        <div class="info-block packing-info">
-            <h3>اطلاعات فرستنده</h3>
-            <strong>فروشگاه:</strong> {{ store.name }}<br>
-            <strong>تلفن:</strong> {{ store.phone }}<br>
-            <strong>آدرس:</strong> {{ store.address }}
+    <div class="address-section">
+        <div class="address-box">
+            <h3>گیرنده</h3>
+            <div><strong>نام کامل:</strong> {{ order.shipping.first_name }} {{ order.shipping.last_name }}</div>
+            <div><strong>تلفن:</strong> {{ order.billing.phone }}</div>
+            <div><strong>آدرس کامل:</strong> {{ order.shipping.address_1 }} {{ order.shipping.address_2 }}</div>
+            <div><strong>کد پستی:</strong> {{ order.shipping.postcode }}</div>
         </div>
-        
-        <div class="info-block packing-info">
-            <h3>اطلاعات گیرنده</h3>
-            <strong>نام کامل:</strong> {{ order.shipping.first_name }} {{ order.shipping.last_name }}<br>
-            <strong>تلفن:</strong> {{ order.billing.phone }}<br>
-            <strong>آدرس:</strong> {{ order.shipping.address_1 }} {{ order.shipping.address_2 }}<br>
-            <strong>کد پستی:</strong> {{ order.shipping.postcode }}
+
+        <div class="address-box">
+            <h3>فرستنده</h3>
+            <div><strong>نام فروشگاه:</strong> {{ store.name }}</div>
+            <div><strong>تلفن:</strong> {{ store.phone }}</div>
+            <div><strong>آدرس:</strong> {{ store.address }}</div>
         </div>
     </div>
     
-    <div style="font-size: 11pt; text-align: center; margin-top: 5mm;">
-        <strong>شماره سفارش:</strong> {{ order.id }} | <strong>تعداد کل اقلام:</strong> {{ total_items }}
+    <div class="order-summary-bar">
+        <span>شماره سفارش: {{ order.id }}</span>
+        <span>تعداد کل اقلام: {{ total_items }}</span>
+    </div>
+
+    <div class="cut-area">
+        این قسمت برای برش و چسباندن روی بسته طراحی شده است.
     </div>
 </div>

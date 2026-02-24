@@ -28,9 +28,17 @@ def parse_order_date(date_str):
     except Exception:
         return jdatetime.date.today()
 
+def format_currency(value):
+    """Format numbers with commas."""
+    try:
+        return "{:,.0f}".format(float(value))
+    except (ValueError, TypeError):
+        return value
+
 def render_template(template_name, context):
     """Render a Jinja2 template with the given context."""
     env = Environment(loader=FileSystemLoader('templates'))
+    env.filters['currency'] = format_currency
     template = env.get_template(template_name)
     return template.render(context)
 
@@ -87,7 +95,10 @@ def generate_pdf(order_json_path):
     css_content = render_template('style.css', css_context)
     
     # 1. Render Invoice only to calculate height
-    invoice_context = {'order': order}
+    invoice_context = {
+        'order': order,
+        'store': store_info
+    }
     invoice_html = render_template('invoice.html', invoice_context)
     
     # Wrap in basic HTML structure with CSS for height calculation
@@ -96,8 +107,8 @@ def generate_pdf(order_json_path):
     invoice_height_mm = calculate_html_height(full_invoice_html, base_url=os.path.abspath('.'))
     
     # 2. Decide Layout
-    # 70% of A4 height (297mm) is approx 207mm
-    force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.7)
+    # 65% of A4 height (297mm) is approx 193mm. Adjusted to prevent unnecessary page breaks.
+    force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.65)
     
     # 3. Render Packing Slip
     packing_context = {
