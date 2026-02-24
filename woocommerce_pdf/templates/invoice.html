@@ -1,0 +1,49 @@
+<div class="invoice-container" id="invoice">
+    <div class="header">
+        <h1>فاکتور فروش</h1>
+    </div>
+    
+    <div class="info-section">
+        <div class="info-block">
+            <strong>شماره سفارش:</strong> {{ order.id }}<br>
+            <strong>تاریخ سفارش:</strong> {{ order.jalali_date }}<br>
+            <strong>نام مشتری:</strong> {{ order.billing.first_name }} {{ order.billing.last_name }}<br>
+            {% if order.created_via == 'admin' %}
+            <strong>صادرکننده فاکتور:</strong> ادمین سایت<br>
+            {% endif %}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ردیف</th>
+                <th>نام محصول</th>
+                <th>تعداد</th>
+                <th>قیمت واحد</th>
+                <th>جمع کل</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.line_items %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        جمع کل نهایی: {{ order.total }}
+    </div>
+    
+    {% if order.customer_note %}
+    <div style="margin-top: 5mm; font-size: 10pt;">
+        <strong>توضیحات سفارش:</strong> {{ order.customer_note }}
+    </div>
+    {% endif %}
+</div>

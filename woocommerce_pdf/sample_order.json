@@ -1,0 +1,33 @@
+{
+  "id": 12345,
+  "date_created": "2023-10-25T14:30:00",
+  "created_via": "checkout",
+  "total": "500000",
+  "customer_note": "لطفا قبل از ارسال تماس بگیرید.",
+  "billing": {
+    "first_name": "علی",
+    "last_name": "رضایی",
+    "phone": "09123456789"
+  },
+  "shipping": {
+    "first_name": "علی",
+    "last_name": "رضایی",
+    "address_1": "تهران، خیابان آزادی",
+    "address_2": "کوچه بهار، پلاک ۱۰، واحد ۲",
+    "postcode": "1234567890"
+  },
+  "line_items": [
+    {
+      "name": "شامپو ضد ریزش مو",
+      "quantity": 2,
+      "price": "150000",
+      "total": "300000"
+    },
+    {
+      "name": "کرم مرطوب کننده دست و صورت",
+      "quantity": 1,
+      "price": "200000",
+      "total": "200000"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "name": "WooCommerce PDF Generator",
+  "description": "A Python script to generate PDF invoices and packing slips from WooCommerce order JSON.",
+  "requestFramePermissions": []
+}
