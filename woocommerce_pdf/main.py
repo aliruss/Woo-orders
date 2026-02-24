@@ -49,7 +49,7 @@ def calculate_html_height(html_content, base_url='.'):
     """
     doc = HTML(string=html_content, base_url=base_url).render()
     
-    # If it creates more than 1 page, it's definitely > 70% of A4.
+    # If it creates more than 1 page, it's definitely > 65% of A4.
     if len(doc.pages) > 1:
         return A4_HEIGHT_MM
     
@@ -61,11 +61,18 @@ def calculate_html_height(html_content, base_url='.'):
     for page in doc.pages:
         def traverse(box):
             nonlocal max_bottom
-            if hasattr(box, 'position_y') and hasattr(box, 'height'):
-                bottom = box.position_y + box.height
-                if bottom > max_bottom:
-                    max_bottom = bottom
-            if hasattr(box, 'children'):
+            box_type = type(box).__name__
+            tag = getattr(box, 'element_tag', '')
+            
+            # Ignore boxes that span the entire page (PageBox, MarginBox, html, body)
+            if box_type not in ('PageBox', 'MarginBox') and tag not in ('html', 'body'):
+                if hasattr(box, 'position_y') and hasattr(box, 'height'):
+                    if box.position_y is not None and box.height is not None:
+                        bottom = box.position_y + box.height
+                        if bottom > max_bottom:
+                            max_bottom = bottom
+                            
+            if hasattr(box, 'children') and box.children:
                 for child in box.children:
                     traverse(child)
         traverse(page._page_box)
@@ -107,8 +114,8 @@ def generate_pdf(order_json_path):
     invoice_height_mm = calculate_html_height(full_invoice_html, base_url=os.path.abspath('.'))
     
     # 2. Decide Layout
-    # 55% of A4 height (297mm) is approx 163mm. Adjusted to prevent unnecessary page breaks.
-    force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.55)
+    # 65% of A4 height (297mm) is approx 193mm.
+    force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.65)
     
     # 3. Render Packing Slip
     packing_context = {
