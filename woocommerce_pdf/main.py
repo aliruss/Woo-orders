@@ -107,8 +107,8 @@ def generate_pdf(order_json_path):
     invoice_height_mm = calculate_html_height(full_invoice_html, base_url=os.path.abspath('.'))
     
     # 2. Decide Layout
-    # 65% of A4 height (297mm) is approx 193mm. Adjusted to prevent unnecessary page breaks.
-    force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.65)
+    # 55% of A4 height (297mm) is approx 163mm. Adjusted to prevent unnecessary page breaks.
+    force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.55)
     
     # 3. Render Packing Slip
     packing_context = {

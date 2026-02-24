@@ -138,14 +138,6 @@ th {
     font-weight: bold;
 }
 
-.cut-area {
-    border: 1px dashed #000;
-    padding: 6mm;
-    text-align: center;
-    color: #333;
-    margin-top: 2mm;
-}
-
 .page-break {
     page-break-before: always;
 }
