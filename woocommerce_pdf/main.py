@@ -13,6 +13,7 @@ FONT_PATH = os.getenv('FONT_PATH', '')
 STORE_NAME = os.getenv('STORE_NAME', 'نام فروشگاه')
 STORE_PHONE = os.getenv('STORE_PHONE', 'تلفن فروشگاه')
 STORE_ADDRESS = os.getenv('STORE_ADDRESS', 'آدرس فروشگاه')
+SITE_URL = os.getenv('SITE_URL', 'https://yoursite.com').rstrip('/')
 
 # A4 dimensions in mm
 A4_HEIGHT_MM = 297
@@ -80,11 +81,8 @@ def calculate_html_height(html_content, base_url='.'):
     height_mm = max_bottom * px_to_mm
     return height_mm
 
-def generate_pdf(order_json_path):
-    """Generate the final PDF from order JSON."""
-    with open(order_json_path, 'r', encoding='utf-8') as f:
-        order = json.load(f)
-        
+def generate_pdf(order, output_dir=None, skip_packing_slip=False):
+    """Generate the final PDF from an order dictionary."""
     # Prepare data
     jalali_date = parse_order_date(order.get('date_created', ''))
     order['jalali_date'] = jalali_date.strftime('%Y/%m/%d')
@@ -94,9 +92,18 @@ def generate_pdf(order_json_path):
     store_info = {
         'name': STORE_NAME,
         'phone': STORE_PHONE,
-        'address': STORE_ADDRESS
+        'address': STORE_ADDRESS,
+        'url': SITE_URL
     }
     
+    # Extract Admin Issuer if created via admin
+    admin_name = "ادمین سایت"
+    if order.get('created_via') == 'admin':
+        for meta in order.get('meta_data', []):
+            if meta.get('key') == '_edit_last' or meta.get('key') == 'issuer_name':
+                admin_name = str(meta.get('value', admin_name))
+    order['admin_issuer'] = admin_name
+
     # Render CSS
     css_context = {'font_path': os.path.abspath(FONT_PATH) if FONT_PATH else ''}
     css_content = render_template('style.css', css_context)
@@ -117,14 +124,16 @@ def generate_pdf(order_json_path):
     # 65% of A4 height (297mm) is approx 193mm.
     force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.65)
     
-    # 3. Render Packing Slip
-    packing_context = {
-        'order': order,
-        'store': store_info,
-        'total_items': total_items,
-        'force_page_break': force_page_break
-    }
-    packing_html = render_template('packing_slip.html', packing_context)
+    # 3. Render Packing Slip (if not skipped)
+    packing_html = ""
+    if not skip_packing_slip:
+        packing_context = {
+            'order': order,
+            'store': store_info,
+            'total_items': total_items,
+            'force_page_break': force_page_break
+        }
+        packing_html = render_template('packing_slip.html', packing_context)
     
     # 4. Combine HTML
     final_html = f"<html><head><style>{css_content}</style></head><body>{invoice_html}{packing_html}</body></html>"
@@ -135,7 +144,9 @@ def generate_pdf(order_json_path):
     day = jalali_date.strftime('%d')
     order_id = order.get('id', 'UNKNOWN')
     
-    output_dir = os.path.join('output', year, month)
+    if not output_dir:
+        output_dir = os.path.join('output', year, month)
+    
     os.makedirs(output_dir, exist_ok=True)
     
     filename = f"{year}-{month}-{day}_{order_id}.pdf"
@@ -148,4 +159,6 @@ def generate_pdf(order_json_path):
 
 if __name__ == '__main__':
     # Example usage
-    generate_pdf('sample_order.json')
+    with open('sample_order.json', 'r', encoding='utf-8') as f:
+        sample_order = json.load(f)
+    generate_pdf(sample_order)

@@ -3,11 +3,12 @@
 A Python script to generate PDF invoices and packing slips from WooCommerce order JSON. It focuses on minimizing paper usage by intelligently placing the packing slip on the same page as the invoice if there is enough space.
 
 ## Features
-- Generates A4 PDF invoices and packing slips.
-- Right-to-Left (RTL) Persian typography.
-- Smart layout: Calculates invoice height and places the packing slip on the same page if it takes less than 70% of the A4 height.
-- Embeds custom Persian fonts.
-- Minimalist, print-friendly, black-and-white design.
+- **Smart Layout**: Calculates invoice height and places the packing slip on the same page if it takes less than 65% of the A4 height.
+- **RTL Persian Typography**: Embeds custom Persian fonts.
+- **Webhook Listener**: Automatically receive orders from WooCommerce and generate PDFs.
+- **Bulk Backup**: Fetch all orders from your site via API, generate invoices (without packing slips), and zip them.
+- **Admin Issuer**: Automatically shows the issuer name if the order was created by an admin.
+- **Product Links**: Clicking on a product name in the PDF opens the product page on your site.
 
 ## Prerequisites
 - Python 3.8+
@@ -32,39 +33,47 @@ A Python script to generate PDF invoices and packing slips from WooCommerce orde
    ```bash
    pip install -r requirements.txt
    ```
-   *(Note: The `requirements.txt` uses `WeasyPrint>=63.0` to avoid the `pydyf` transform error.)*
 
 4. **Configure Environment Variables:**
    Copy the example environment file and edit it:
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` to match your store details and font path:
+   Edit `.env` to match your store details, font path, and API credentials:
    ```env
    FONT_PATH=./fonts/Vazirmatn-Regular.ttf
    STORE_NAME=نام فروشگاه شما
    STORE_PHONE=۰۲۱-۱۲۳۴۵۶۷۸
    STORE_ADDRESS=تهران، خیابان ولیعصر، کوچه نمونه، پلاک ۱
+   SITE_URL=https://yoursite.com
+
+   # For Bulk Backup (WooCommerce API)
+   WC_URL=https://yoursite.com
+   WC_KEY=ck_your_consumer_key
+   WC_SECRET=cs_your_consumer_secret
    ```
 
 5. **Add your Font:**
-   Create a `fonts` directory and place your `.ttf` font file there (e.g., `Vazirmatn-Regular.ttf`).
-   ```bash
-   mkdir fonts
-   # Copy your font into the fonts directory
-   ```
+   Create a `fonts` directory and place your `.ttf` font file there.
 
 ## Usage
 
-Run the script by passing a sample WooCommerce order JSON. A sample `sample_order.json` is provided.
-
+### 1. Manual Test
+Run the script by passing a sample WooCommerce order JSON:
 ```bash
 python main.py
 ```
 
-The generated PDF will be saved in the `output/YYYY/MM/` directory based on the Jalali date of the order.
+### 2. Webhook Listener (Auto-fetch)
+Start the Flask server to listen for WooCommerce webhooks:
+```bash
+python webhook.py
+```
+*Configure this in WooCommerce > Settings > Advanced > Webhooks. Set the Delivery URL to `http://your-server-ip:5000/webhook/order-created`.*
 
-## Troubleshooting
-
-- **`AttributeError: 'super' object has no attribute 'transform'`**: This is caused by an incompatibility between WeasyPrint 62.1 and newer versions of `pydyf`. It is fixed by upgrading to `WeasyPrint>=63.0`. Run `pip install -U -r requirements.txt` to fix this.
-- **Missing fonts or squares instead of text**: Ensure the `FONT_PATH` in your `.env` file is correct and points to a valid `.ttf` file.
+### 3. Bulk Backup (Invoices Only)
+Fetch all orders from your site, generate invoices (no packing slips), and zip them into a single file:
+```bash
+python backup.py
+```
+*This script uses pagination and a 2-second delay between requests to avoid overloading your server.*
