@@ -8,6 +8,7 @@
         <div class="meta-col">
             <div><strong>تاریخ:</strong> {{ order.jalali_date }}</div>
             <div><strong>تلفن:</strong> {{ order.billing.phone }}</div>
+            <div><strong>روش پرداخت:</strong> {{ order.payment_method_title | default('نامشخص', true) }}</div>
         </div>
         <div class="meta-col">
             <div><strong>شماره سفارش:</strong> {{ order.id }}</div>
@@ -45,6 +46,14 @@
         </tbody>
     </table>
 
+    <div class="total-row" style="font-weight: normal; font-size: 10pt; margin-bottom: 2mm; border-bottom: 1px solid #eee; padding-bottom: 2mm;">
+        <span>هزینه ارسال:</span>
+        <span>{{ order.shipping_total | currency }} تومان</span>
+    </div>
+    <div class="total-row" style="font-weight: normal; font-size: 10pt; margin-bottom: 2mm; border-bottom: 1px solid #eee; padding-bottom: 2mm;">
+        <span>مالیات:</span>
+        <span>{{ order.total_tax | currency }} تومان</span>
+    </div>
     <div class="total-row">
         <span>جمع کل:</span>
         <span>{{ order.total | currency }} تومان</span>

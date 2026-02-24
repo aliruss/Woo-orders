@@ -9,6 +9,8 @@ A Python script to generate PDF invoices and packing slips from WooCommerce orde
 - **Bulk Backup**: Fetch all orders from your site via API, generate invoices (without packing slips), and zip them.
 - **Admin Issuer**: Automatically shows the issuer name if the order was created by an admin.
 - **Product Links**: Clicking on a product name in the PDF opens the product page on your site.
+- **Telegram Bot Integration**: Automatically sends the generated PDF to a Telegram group and privately to the sales expert.
+- **Detailed Invoice**: Displays payment method, tax, and shipping costs.
 
 ## Prerequisites
 - Python 3.8+
@@ -47,16 +49,39 @@ A Python script to generate PDF invoices and packing slips from WooCommerce orde
    STORE_ADDRESS=تهران، خیابان ولیعصر، کوچه نمونه، پلاک ۱
    SITE_URL=https://yoursite.com
 
-   # For Bulk Backup (WooCommerce API)
+   # For Bulk Backup & Telegram Status Update (WooCommerce API)
    WC_URL=https://yoursite.com
    WC_KEY=ck_your_consumer_key
    WC_SECRET=cs_your_consumer_secret
 
    # For Webhook Security (Optional but recommended)
    WC_WEBHOOK_SECRET=your_secret_key_here
+
+   # Telegram Bot Settings
+   TG_BOT_TOKEN=your_telegram_bot_token_here
+   TG_GROUP_ID=-1001234567890
    ```
 
-5. **Add your Font:**
+5. **Telegram Setup (Optional):**
+   - Create a bot via [@BotFather](https://t.me/BotFather) and get the Token (`TG_BOT_TOKEN`).
+   - Add the bot to your managers' group and get the Group ID (`TG_GROUP_ID`).
+   - To map WooCommerce users (Sales Experts) to their Telegram accounts, edit `telegram_users.json`. The key is the WooCommerce User ID, and the value is their Telegram Chat ID:
+     ```json
+     {
+         "1": "123456789",
+         "2": "987654321"
+     }
+     ```
+
+6. **Admin Issuer Name Setup (Optional):**
+   WooCommerce does not send the admin's display name by default. To show the exact name (e.g., "ادمین سایت علی خلیلی"), we have provided a ready-to-use WordPress plugin.
+   - Go to the `wp_plugin` folder in this repository.
+   - Zip the `woocommerce-admin-issuer.php` file (or the whole folder).
+   - In your WordPress Admin Panel, go to **Plugins > Add New > Upload Plugin**.
+   - Upload the zip file, install, and activate it.
+   - Now, whenever an admin creates an order, their name will be saved and printed on the PDF invoice.
+
+7. **Add your Font:**
    Create a `fonts` directory and place your `.ttf` font file there.
 
 ## Usage

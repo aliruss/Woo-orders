@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from main import generate_pdf
+from telegram_utils import send_to_telegram
 import logging
 import hmac
 import hashlib
@@ -29,12 +30,17 @@ def order_created():
     # Validate Webhook Signature
     if WC_WEBHOOK_SECRET:
         signature = request.headers.get('X-WC-Webhook-Signature')
+        
+        # WooCommerce calculates the HMAC-SHA256 hash of the *raw* request body
         payload = request.get_data()
         secret = WC_WEBHOOK_SECRET.encode('utf-8')
-        expected_sig = base64.b64encode(hmac.new(secret, payload, hashlib.sha256).digest()).decode()
+        
+        expected_sig = base64.b64encode(hmac.new(secret, payload, hashlib.sha256).digest()).decode('utf-8')
         
         if not signature or not hmac.compare_digest(expected_sig, signature):
             print("❌ Error: Invalid Webhook Signature! Secret key mismatch.")
+            print(f"   Received Signature: {signature}")
+            print(f"   Expected Signature: {expected_sig}")
             return jsonify({"error": "Invalid signature"}), 401
         else:
             print("🔒 Webhook Signature verified successfully.")
@@ -84,6 +90,10 @@ def order_created():
         # Generate PDF for the received order
         pdf_path = generate_pdf(order)
         print(f"✅ PDF generated successfully: {pdf_path}")
+        
+        # Send to Telegram
+        send_to_telegram(order, pdf_path)
+        
         return jsonify({
             "status": "success", 
             "message": f"PDF generated for order {order['id']}",

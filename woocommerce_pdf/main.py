@@ -100,8 +100,10 @@ def generate_pdf(order, output_dir=None, skip_packing_slip=False):
     admin_name = "ادمین سایت"
     if order.get('created_via') == 'admin':
         for meta in order.get('meta_data', []):
-            if meta.get('key') == '_edit_last' or meta.get('key') == 'issuer_name':
-                admin_name = str(meta.get('value', admin_name))
+            if meta.get('key') == 'issuer_name':
+                admin_name = f"ادمین سایت ({meta.get('value')})"
+            elif meta.get('key') == '_edit_last' and admin_name == "ادمین سایت":
+                admin_name = f"ادمین سایت (کاربر {meta.get('value')})"
     order['admin_issuer'] = admin_name
 
     # Render CSS
