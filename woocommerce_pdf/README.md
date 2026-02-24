@@ -51,6 +51,9 @@ A Python script to generate PDF invoices and packing slips from WooCommerce orde
    WC_URL=https://yoursite.com
    WC_KEY=ck_your_consumer_key
    WC_SECRET=cs_your_consumer_secret
+
+   # For Webhook Security (Optional but recommended)
+   WC_WEBHOOK_SECRET=your_secret_key_here
    ```
 
 5. **Add your Font:**
@@ -77,3 +80,47 @@ Fetch all orders from your site, generate invoices (no packing slips), and zip t
 python backup.py
 ```
 *This script uses pagination and a 2-second delay between requests to avoid overloading your server.*
+
+## Troubleshooting Webhooks
+
+If WooCommerce shows **"خطا: آدرس تحویل نمی تواند برسد به: نشانی معتبر نیست"** (Delivery URL cannot be reached: Invalid address) or you see `Bad request version` or `No JSON payload` in your logs:
+
+1. **Nginx Reverse Proxy Setup (Crucial for HTTPS):**
+   If your WooCommerce site uses HTTPS, it will refuse to send webhooks to a plain HTTP server. You *must* set up Nginx as a reverse proxy with an SSL certificate.
+   
+   Create an Nginx configuration file (e.g., `/etc/nginx/sites-available/orders.sabtic.ir`):
+   ```nginx
+   server {
+       server_name orders.sabtic.ir;
+
+       location / {
+           proxy_pass http://127.0.0.1:5000;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+   ```
+   Enable it and install SSL:
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/orders.sabtic.ir /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl reload nginx
+   sudo certbot --nginx -d orders.sabtic.ir
+   ```
+
+2. **WordPress SSRF Protection (IP Blocking):**
+   By default, WordPress blocks HTTP requests to raw IP addresses or non-standard ports for security reasons. Using a domain name (like `orders.sabtic.ir`) usually bypasses this. If it still fails, add this to your WordPress theme's `functions.php`:
+   ```php
+   add_filter( 'http_request_args', function( $args ) {
+       $args['reject_unsafe_urls'] = false;
+       return $args;
+   });
+   ```
+
+3. **Secret Key (محرمانه):**
+   If you set a Secret Key in WooCommerce, you must add the exact same key to your `.env` file as `WC_WEBHOOK_SECRET`. The script will automatically validate the HMAC-SHA256 signature.
+
+4. **"No JSON payload" Error:**
+   Sometimes WooCommerce sends the initial "Ping" request as URL-encoded form data (`action=woocommerce_ping`) instead of JSON. The script has been updated to handle this automatically. If you still see this error, check the "Raw Data snippet" in the terminal logs to see exactly what WooCommerce is sending.
