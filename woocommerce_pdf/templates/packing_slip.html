@@ -25,4 +25,13 @@
         <span>شماره سفارش: {{ order.id }}</span>
         <span>تعداد کل اقلام: {{ total_items }}</span>
     </div>
+    
+    <div style="margin-top: 4mm; border: 2px dashed #000; padding: 4mm; text-align: center; font-size: 14pt; font-weight: bold;">
+        شیوه ارسال: 
+        {% if order.shipping_lines and order.shipping_lines|length > 0 %}
+            {{ order.shipping_lines[0].method_title }}
+        {% else %}
+            نامشخص
+        {% endif %}
+    </div>
 </div>

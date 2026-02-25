@@ -103,9 +103,9 @@ def generate_pdf(order, output_dir=None, skip_packing_slip=False):
         admin_name = "ادمین سایت"
         for meta in order.get('meta_data', []):
             if meta.get('key') == 'issuer_name':
-                admin_name = f"ادمین سایت ({meta.get('value')})"
+                admin_name = str(meta.get('value'))
             elif meta.get('key') == '_edit_last' and admin_name == "ادمین سایت":
-                admin_name = f"ادمین سایت (کاربر {meta.get('value')})"
+                admin_name = f"کاربر شناسه {meta.get('value')}"
     else:
         admin_name = "مشتری (خرید آنلاین)"
     order['admin_issuer'] = admin_name

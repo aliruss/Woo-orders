@@ -23,6 +23,11 @@ def send_to_telegram(order, pdf_path):
     payment_method = order.get('payment_method_title', 'نامشخص')
     issuer = order.get('admin_issuer', 'مشتری (خرید آنلاین)')
     
+    # Check if shipping is required
+    shipping = order.get('shipping', {})
+    has_shipping = bool(shipping.get('first_name') or shipping.get('address_1'))
+    shipping_alert = "🚨 **نیاز به ارسال دارد ❌**" if has_shipping else "📦 ارسال فیزیکی ندارد"
+    
     # Format line items
     items = []
     for item in order.get('line_items', []):
@@ -31,6 +36,7 @@ def send_to_telegram(order, pdf_path):
     
     caption = (
         f"📄 فاکتور جدید صادر شد\n"
+        f"{shipping_alert}\n\n"
         f"🛍 شماره سفارش: {order_id}\n"
         f"👤 مشتری: {first_name} {last_name}\n"
         f"💳 شیوه پرداخت: {payment_method}\n"
