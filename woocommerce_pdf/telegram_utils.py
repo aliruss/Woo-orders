@@ -26,7 +26,7 @@ def send_to_telegram(order, pdf_path):
     # Check if shipping is required
     shipping = order.get('shipping', {})
     has_shipping = bool(shipping.get('first_name') or shipping.get('address_1'))
-    shipping_alert = "🚨 **نیاز به ارسال دارد ❌**" if has_shipping else "📦 ارسال فیزیکی ندارد"
+    shipping_alert = "🚨 **نیاز به ارسال دارد ❌**\n\n" if has_shipping else ""
     
     # Format line items
     items = []
@@ -36,7 +36,7 @@ def send_to_telegram(order, pdf_path):
     
     caption = (
         f"📄 فاکتور جدید صادر شد\n"
-        f"{shipping_alert}\n\n"
+        f"{shipping_alert}"
         f"🛍 شماره سفارش: {order_id}\n"
         f"👤 مشتری: {first_name} {last_name}\n"
         f"💳 شیوه پرداخت: {payment_method}\n"
@@ -68,8 +68,12 @@ def send_to_telegram(order, pdf_path):
     if issuer_id:
         try:
             if os.path.exists('telegram_users.json'):
-                with open('telegram_users.json', 'r', encoding='utf-8') as f:
-                    users_map = json.load(f)
+                try:
+                    with open('telegram_users.json', 'r', encoding='utf-8') as f:
+                        users_map = json.load(f)
+                except json.JSONDecodeError as je:
+                    print(f"❌ خطای نگارشی در فایل telegram_users.json: لطفاً مطمئن شوید که فرمت JSON صحیح است (مثلاً ویرگول اضافی در انتهای خط آخر نباشد). جزئیات: {je}")
+                    users_map = {}
                 
                 expert_chat_id = users_map.get(issuer_id)
                 if expert_chat_id:

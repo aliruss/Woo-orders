@@ -26,12 +26,12 @@
         <span>تعداد کل اقلام: {{ total_items }}</span>
     </div>
     
-    <div style="margin-top: 4mm; border: 2px dashed #000; padding: 4mm; text-align: center; font-size: 14pt; font-weight: bold;">
+    <div style="margin-top: 4mm; border: 1px dashed #000; padding: 2mm; text-align: center; font-size: 11pt; font-weight: bold;">
         شیوه ارسال: 
         {% if order.shipping_lines and order.shipping_lines|length > 0 %}
             {{ order.shipping_lines[0].method_title }}
         {% else %}
-            نامشخص
+            <span style="display: inline-block; width: 40mm; border-bottom: 1px dotted #000; margin-right: 2mm;"></span>
         {% endif %}
     </div>
 </div>
