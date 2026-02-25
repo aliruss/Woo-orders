@@ -13,6 +13,7 @@ FONT_PATH = os.getenv('FONT_PATH', '')
 STORE_NAME = os.getenv('STORE_NAME', 'نام فروشگاه')
 STORE_PHONE = os.getenv('STORE_PHONE', 'تلفن فروشگاه')
 STORE_ADDRESS = os.getenv('STORE_ADDRESS', 'آدرس فروشگاه')
+STORE_POSTCODE = os.getenv('STORE_POSTCODE', 'کد پستی فروشگاه')
 SITE_URL = os.getenv('SITE_URL', 'https://yoursite.com').rstrip('/')
 
 # A4 dimensions in mm
@@ -93,17 +94,20 @@ def generate_pdf(order, output_dir=None, skip_packing_slip=False):
         'name': STORE_NAME,
         'phone': STORE_PHONE,
         'address': STORE_ADDRESS,
+        'postcode': STORE_POSTCODE,
         'url': SITE_URL
     }
     
     # Extract Admin Issuer if created via admin
-    admin_name = "ادمین سایت"
     if order.get('created_via') == 'admin':
+        admin_name = "ادمین سایت"
         for meta in order.get('meta_data', []):
             if meta.get('key') == 'issuer_name':
                 admin_name = f"ادمین سایت ({meta.get('value')})"
             elif meta.get('key') == '_edit_last' and admin_name == "ادمین سایت":
                 admin_name = f"ادمین سایت (کاربر {meta.get('value')})"
+    else:
+        admin_name = "مشتری (خرید آنلاین)"
     order['admin_issuer'] = admin_name
 
     # Render CSS
