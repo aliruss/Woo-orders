@@ -130,9 +130,14 @@ def generate_pdf(order, output_dir=None, skip_packing_slip=False):
     # 65% of A4 height (297mm) is approx 193mm.
     force_page_break = invoice_height_mm > (A4_HEIGHT_MM * 0.65)
     
-    # 3. Render Packing Slip (if not skipped)
+    # 3. Render Packing Slip (if not skipped and shipping info exists)
     packing_html = ""
-    if not skip_packing_slip:
+    
+    # Check if shipping info exists
+    shipping = order.get('shipping', {})
+    has_shipping = bool(shipping.get('first_name') or shipping.get('address_1'))
+    
+    if not skip_packing_slip and has_shipping:
         packing_context = {
             'order': order,
             'store': store_info,
